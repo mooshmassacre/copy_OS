@@ -1,0 +1,39 @@
+# Logs do backup
+logs/
+
+# Arquivos temporários do copy_OS
+*.copying
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Ambientes virtuais
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store# Logs do backup
+logs/
+
+# Arquivos temporários do copy_OS
+*.copying
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Ambientes virtuais
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store

@@ -24,8 +24,6 @@ from datetime import datetime
 # - Verificação de espaço livre considerando arquivos sobrescritos
 # - Contagem correta de arquivos verificados com SHA-256
 # - Limpeza de código morto
-#
-# Mantido da V4:
 # - Suporte correto a ANSI no Windows
 # - Verificação de espaço livre no destino
 # - Exclusões úteis ativadas por padrão
@@ -33,8 +31,6 @@ from datetime import datetime
 # - Velocidade média no resumo final
 # - Interface mais estável
 # - Código mais limpo e organizado
-#
-# Mantido da V3:
 # - SHA-256 calculado durante a cópia
 # - Verificação de integridade antes de substituir
 # - Arquivo temporário .copying + os.replace
@@ -93,7 +89,7 @@ def habilitar_ansi():
 
 
 # ------------------------------------------------------------
-# ASCII ART
+# ASCII ART - by MOOSHMASSACRE@MAIL.COM
 # ------------------------------------------------------------
 
 ASCII_ART = r"""

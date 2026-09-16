@@ -111,11 +111,13 @@ COPY_OS automatically retries failed transfers.
 Current configuration:
 
 ```python
-MAX_TENTATIVAS = 999
+MAX_TENTATIVAS = 5
 ESPERA_RETRY = 10
 ```
 
-This means the application can retry a failed file transfer with up to 999 total attempts, waiting 10 seconds between attempts.
+This means the application can retry a failed file transfer with up to 5 total attempts, waiting 10 seconds between attempts. After the fifth failed attempt, the file is recorded as failed and processing continues. The screen and log show the failing operation, exception, errno and Windows error code when available.
+
+Both modes re-read the source size at the start of every attempt. A change after the initial scan no longer causes retries against an obsolete size. Changes detected during the transfer still cause rejection and retry.
 
 ---
 
@@ -125,7 +127,7 @@ Before performing a real backup, COPY_OS can run in **Dry Run** mode.
 
 Dry Run analyzes the source and destination and reports which files would be copied without modifying the destination.
 
-Simulated copies now advance the processed-byte count correctly. Logs are still written in the current working directory. The display may update only when a file is skipped or the simulation finishes.
+Simulated copies now advance the processed-byte count correctly. Logs are still written in the current working directory. The display updates for each simulated file, with separate simulated file and byte totals. No SHA-256 verification is performed in Dry Run.
 
 This is useful for validating a backup operation before executing it.
 
@@ -138,7 +140,8 @@ COPY_OS provides a fixed terminal interface displaying:
 - Current file
 - Current file progress
 - Overall progress
-- Total number of files
+- Processed files / total files
+- Separate copied, skipped, failed and simulated counters
 - Transfer speed
 - Estimated remaining time
 - Current operation
@@ -151,7 +154,7 @@ Illustrative example:
 ```text
 ┌─────────────────────────────────────────┐
 │       SECURE FILE TRANSFER SYSTEM       │
-│          NAS BACKUP 1.6 by MOOSH        │
+│          NAS BACKUP 1.7 by MOOSH        │
 └─────────────────────────────────────────┘
 
 MODE: FAST COPY
@@ -256,20 +259,20 @@ cd copy_OS
 Run:
 
 ```bash
-python3 copy_OS_1.6.py
+python3 copy_OS_1.7.py
 ```
 
 On Windows:
 
 ```powershell
-python copy_OS_1.6.py
+python copy_OS_1.7.py
 ```
 
 ---
 
 The prompts ask for source, destination, normal backup or Dry Run, and (for normal backups) fast or secure copy.
 
-`copy_OS_1.6.py` is the current release. The existing `copy_OS.py` is retained as the previous version.
+`copy_OS_1.7.py` is the current release. Both `copy_OS_1.6.py` and the original `copy_OS.py` are retained as previous versions.
 
 ## 🌐 NAS Usage
 
@@ -297,7 +300,7 @@ Main configuration values are located near the beginning of the Python script.
 BAR_WIDTH = 50
 BLOCO_COPIA = 8 * 1024 * 1024
 
-MAX_TENTATIVAS = 999
+MAX_TENTATIVAS = 5
 ESPERA_RETRY = 10
 ```
 
@@ -347,9 +350,11 @@ This makes COPY_OS suitable for backup-oriented workflows rather than destructiv
 
 ## 📌 Project Status
 
-**Current version: 1.6.0**
+**Current version: 1.7.0**
 
-Speed and ETA are based on processed bytes, including skipped files, and are not a measurement of network throughput alone. Free-space checking compares free space against the entire scanned source size and may warn even for incremental backups.
+Speed uses transferred bytes and active copy time (including source hashing and flush), excluding skipped files, retry waits and temporary-file verification. Transferred bytes include retry traffic; successfully copied bytes count completed files once. System/NAS caching can still affect the measurement. ETA estimates pending copy time only, excluding future retries and SHA-256 verification. The overall bar measures processing, not success; check the failure count.
+
+The final summary and log separate scanned, copied, skipped, simulated and failed bytes, failed attempts, verified files, copy time and temporary-file verification time. Free-space checking compares free space against the entire scanned source size and may warn even for incremental backups.
 
 COPY_OS is actively developed.
 
@@ -357,12 +362,20 @@ Future releases may introduce additional improvements to performance, verificati
 
 ---
 
+## Release 1.7
+
+- Expanded transfer statistics and per-file Dry Run updates.
+- Refreshed source size on every attempt in both modes.
+- At most five attempts per file, with explicit failure reporting.
+- Secure mode retains source-change detection, `fsync()`, SHA-256 comparison and replacement only after successful verification.
+- Restored large block-letter title with aligned frame.
+
 ## 🗺️ Roadmap
 
 Planned improvements may include:
 
 - [x] Corrected Dry Run processed-byte calculation (1.6)
-- [ ] Additional transfer statistics
+- [x] Additional transfer statistics (1.7)
 - [ ] Configuration file
 - [ ] More detailed error reporting
 - [ ] Additional NAS/network optimizations

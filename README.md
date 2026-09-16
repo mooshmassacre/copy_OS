@@ -387,13 +387,17 @@ Planned improvements may include:
 
 ## 📄 License
 
-License information will be added in a future release.
+Licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>.
+
+The copyright and permission notices must be preserved in all copies or substantial portions of the software.
 
 ---
 
 ## 👤 Author
 
-**MOOSH**
+**@moosmassacre** — mooshmassacre@mail.com
 
 COPY_OS — Secure File Transfer System
 

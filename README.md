@@ -372,16 +372,33 @@ Future releases may introduce additional improvements to performance, verificati
 
 ## 🗺️ Roadmap
 
-Planned improvements may include:
+### Completed
 
 - [x] Corrected Dry Run processed-byte calculation (1.6)
 - [x] Additional transfer statistics (1.7)
-- [ ] Configuration file
-- [ ] More detailed error reporting
-- [ ] Additional NAS/network optimizations
-- [ ] Improved recovery of interrupted transfers
-- [ ] Expanded verification options
-- [ ] GUI interface
+
+### Next priority: transfer controls and responsive startup
+
+Local prototypes 1.7.1–1.7.3 are under testing. These items are not yet part of the published 1.7 release and remain unchecked until Windows/NAS validation and release.
+
+- [ ] Pause/resume with **P** and cancel with **C** directly from the terminal interface.
+- [ ] Support controls during copying, SHA-256 verification and retry waits, preserving completed files and attempting to remove the current temporary file on cancellation.
+- [ ] Show live source-scan progress: current path, file count and accumulated size.
+- [ ] Allow pause/cancel during source analysis; stop the operation if the scan makes no progress for 30 seconds, logging the path without starting a partial backup.
+- [ ] Limit the destination free-space query to 5 seconds; warn and continue without a space estimate if it fails or times out.
+- [ ] Avoid a duplicate destination metadata scan before copying; adjust the copy estimate as up-to-date files are skipped.
+- [ ] Validate these changes on Windows and NAS in both fast and secure modes before publishing.
+
+Copy and hash controls are cooperative: a blocked disk/network read or write must return before the command can be handled. The local source-scan and free-space-query prototypes keep the interface responsive while those queries are pending.
+
+### Following improvements
+
+- [ ] Configuration file, including saved source/destination paths, copy mode, exclusions, retry settings and named backup profiles.
+- [ ] More detailed error reporting.
+- [ ] Additional NAS/network optimizations.
+- [ ] Improved recovery of interrupted transfers.
+- [ ] Expanded verification options.
+- [ ] GUI interface.
 
 ---
 

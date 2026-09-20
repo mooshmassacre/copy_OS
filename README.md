@@ -393,7 +393,7 @@ Copy and hash controls are cooperative: a blocked disk/network read or write mus
 
 ### Following improvements
 
-- [ ] Configuration file, including saved source/destination paths, copy mode, exclusions, retry settings and named backup profiles.
+- [ ] Configuration file for exclusions and retry settings (no saved backup profiles).
 - [ ] More detailed error reporting.
 - [ ] Additional NAS/network optimizations.
 - [ ] Improved recovery of interrupted transfers.

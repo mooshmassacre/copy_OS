@@ -1,0 +1,6 @@
+{
+  "max_attempts": 5,
+  "retry_delay_seconds": 10,
+  "additional_extensions": [],
+  "additional_names": []
+}

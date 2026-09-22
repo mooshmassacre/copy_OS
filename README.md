@@ -1,421 +1,140 @@
-# COPY_OS
+# COPY_OS 1.8
 
-### Secure File Transfer System — NAS Backup
+A Python file-copy and NAS backup utility with fast and SHA-256-verified copy modes. Version 1.8 is the current release.
 
-A lightweight Python-based file synchronization and backup utility designed for reliable transfers between local storage and NAS/network locations.
+Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. Licensed under the MIT License; see LICENSE.
 
-COPY_OS provides two copy modes: a fast metadata-based mode and a secure SHA-256 verification mode.
+## Requirements and startup
 
----
+Python 3.9 or later. No additional packages are required. Use a terminal with ANSI support. Keep `copy_OS_1.8.py` and `config.json` in the same directory.
 
-## ✨ Features
-
-- 🚀 Fast incremental file copying
-- 🔐 Optional SHA-256 integrity verification
-- 📊 Real-time terminal progress interface
-- 📁 Incremental synchronization
-- 🧪 Dry Run mode
-- 🔄 Automatic retry system
-- 💾 Destination free-space verification
-- 📝 Detailed backup logs
-- 🛡️ Temporary `.copying` files to prevent incomplete destination files
-- ⚛️ Atomic file replacement using `os.replace()`
-- 💽 `fsync()` to flush written data in secure mode
-- 🔍 Detection of source files modified during transfer
-- 🖥️ Windows long-path support
-- 🌐 NAS / SMB / network path support
-- 🚫 Never deletes files from the destination
-- 🧹 Built-in exclusions for temporary and system files
-
----
-
-## 🔒 Copy Modes
-
-COPY_OS offers two transfer modes.
-
-### 1. Fast Copy
-
-```text
-[1] Cópia rápida
-```
-
-Uses file metadata to determine whether a file needs to be copied:
-
-- File size
-- Modification date
-
-No SHA-256 calculation or second hash-reading pass is performed. Fast mode also skips per-file `fsync()`.
-
-This mode is recommended for normal backups where maximum transfer performance is desired.
-
-### 2. Secure Copy
-
-```text
-[2] Cópia segura
-```
-
-Uses SHA-256 to verify file integrity.
-
-During the transfer, COPY_OS calculates the SHA-256 hash of the source while writing the destination temporary file.
-
-The temporary file is flushed with `fsync()`, then hashed and compared with the source hash before it replaces the destination.
-
-This mode provides stronger integrity verification at the cost of additional processing time.
-
----
-
-## 🧠 How It Works
-
-COPY_OS does not blindly copy every file.
-
-For each source file, it checks whether the destination already contains an equivalent up-to-date file.
-
-A file is copied when:
-
-- The destination does not exist
-- The file size is different
-- The source modification date is newer
-
-Otherwise, the existing destination file is skipped in both modes. Secure mode verifies newly copied files; it does not hash files skipped by the metadata check.
-
----
-
-## 🛡️ Safe Transfer Process
-
-Files are never written directly over the destination file.
-
-COPY_OS uses a temporary file:
-
-```text
-source/file.mkv
-        ↓
-destination/file.mkv.copying
-        ↓
-verification
-        ↓
-destination/file.mkv
-```
-
-After the transfer and verification are successful, the temporary file replaces the destination using an atomic operation.
-
-If the transfer fails, the original destination file is preserved.
-
----
-
-## 🔄 Automatic Retry
-
-Network storage can occasionally experience interruptions or temporary I/O failures.
-
-COPY_OS automatically retries failed transfers.
-
-Current configuration:
-
-```python
-MAX_TENTATIVAS = 5
-ESPERA_RETRY = 10
-```
-
-This means the application can retry a failed file transfer with up to 5 total attempts, waiting 10 seconds between attempts. After the fifth failed attempt, the file is recorded as failed and processing continues. The screen and log show the failing operation, exception, errno and Windows error code when available.
-
-Both modes re-read the source size at the start of every attempt. A change after the initial scan no longer causes retries against an obsolete size. Changes detected during the transfer still cause rejection and retry.
-
----
-
-## 🧪 Dry Run
-
-Before performing a real backup, COPY_OS can run in **Dry Run** mode.
-
-Dry Run analyzes the source and destination and reports which files would be copied without modifying the destination.
-
-Simulated copies now advance the processed-byte count correctly. Logs are still written in the current working directory. The display updates for each simulated file, with separate simulated file and byte totals. No SHA-256 verification is performed in Dry Run.
-
-This is useful for validating a backup operation before executing it.
-
----
-
-## 📊 Terminal Interface
-
-COPY_OS provides a fixed terminal interface displaying:
-
-- Current file
-- Current file progress
-- Overall progress
-- Processed files / total files
-- Separate copied, skipped, failed and simulated counters
-- Transfer speed
-- Estimated remaining time
-- Current operation
-- SHA-256 verification status when enabled
-
-The 1.6 interface clears and redraws the screen with `ESC[2J` and `ESC[H` on each update. It no longer moves the cursor up a fixed number of lines, correcting repeated progress bars caused by wrapped file paths. Use an ANSI-compatible terminal.
-
-Illustrative example:
-
-```text
-┌─────────────────────────────────────────┐
-│       SECURE FILE TRANSFER SYSTEM       │
-│          NAS BACKUP 1.7 by MOOSH        │
-└─────────────────────────────────────────┘
-
-MODE: FAST COPY
-
-████████████████████████████░░░░░░░░░░░░  68%
-
-Files: 184 / 267
-Speed: 185.4 MB/s
-ETA:   00:03:21
-
-Current file:
-Movies/Example Movie/example.mkv
-
-COPIANDO — SEM HASH
-```
-
----
-
-## 📝 Logging
-
-Each backup operation generates a timestamped log inside:
-
-```text
-logs/
-```
-
-Example:
-
-```text
-logs/
-└── backup_2026-09-08_14-30-52.log
-```
-
-Logs contain information about successful transfers, failures, retries and integrity verification.
-
----
-
-## 🚫 File Exclusions
-
-COPY_OS automatically ignores common temporary and system files and directories. Matching is case-insensitive; every name beginning with `._` is excluded.
-
-### Extensions
-
-```text
-.tmp
-.part
-.crdownload
-.download
-.partial
-.!ut
-.bc!
-```
-
-### Files and directories
-
-```text
-Thumbs.db
-.DS_Store
-._*
-desktop.ini
-.AppleDouble
-.Spotlight-V100
-.Trashes
-.fseventsd
-.DocumentRevisions-V100
-.TemporaryItems
-.VolumeIcon.icns
-@eaDir
-#recycle
-$RECYCLE.BIN
-System Volume Information
-```
-
----
-
-## 💻 Requirements
-
-- Python 3.9+
-- No external Python packages required
-- Read access to the source
-- Write access to the destination
-- Sufficient free disk space
-
-COPY_OS uses only Python's standard library.
-
----
-
-## 🚀 Usage
-
-Clone the repository:
-
-```bash
-git clone https://github.com/mooshmassacre/copy_OS.git
-```
-
-Enter the project directory:
-
-```bash
-cd copy_OS
-```
-
-Run:
-
-```bash
-python3 copy_OS_1.7.py
-```
-
-On Windows:
+Windows:
 
 ```powershell
-python copy_OS_1.7.py
+python copy_OS_1.8.py
 ```
-
----
-
-The prompts ask for source, destination, normal backup or Dry Run, and (for normal backups) fast or secure copy.
-
-`copy_OS_1.7.py` is the current release. Both `copy_OS_1.6.py` and the original `copy_OS.py` are retained as previous versions.
-
-## 🌐 NAS Usage
-
-COPY_OS can be used with NAS storage accessed through SMB/network paths.
-
-For reliable network operation, using the NAS path directly is recommended instead of relying on mapped drive letters when possible.
-
-Example:
-
-```text
-Windows:
-\\NAS\Backup\Media
 
 macOS / Linux:
-/Volumes/Backup/Media
+
+```sh
+python3 copy_OS_1.8.py
 ```
 
----
+Enter the source folder, destination folder, execution mode and copy mode when prompted. The insufficient-space confirmation uses **Y** for yes. Backup profiles are not used.
 
-## ⚙️ Configuration
+## Copy modes
 
-Main configuration values are located near the beginning of the Python script.
+Both modes decide whether to copy using size and modification time. Files already considered up to date are skipped without hashing.
 
-```python
-BAR_WIDTH = 50
-BLOCO_COPIA = 8 * 1024 * 1024
+- **Fast:** copies to a `.copying` temporary file, checks the copied size and detects source changes. No SHA-256 or per-file `fsync()`.
+- **Secure:** additionally calculates the source SHA-256 during transfer, flushes with `fsync()`, hashes the temporary file and compares the results before replacing the destination.
+- **Dry Run:** reports what would be copied without writing destination files. Logs and reports are still created.
 
-MAX_TENTATIVAS = 5
-ESPERA_RETRY = 10
+Each attempt reads the current source size. A source change after the initial scan does not cause endless retries against an obsolete size. Changes detected during copying or before replacement still reject that attempt.
+
+Existing destination files are replaced only after successful checks. Destination-only files are not deleted.
+
+## Keyboard controls
+
+With the terminal focused, press **P** to pause/resume or **C** to cancel, without Enter. Ctrl+C also cancels.
+
+Controls are available during scanning, space checks, copying, temporary-file verification and retry waits. During copying or hashing, a blocked operating-system read/write must return before the command can be handled. Pausing does not freeze other applications: source changes remain subject to validation.
+
+Cancellation preserves completed files and attempts to remove the current temporary file. Cleanup errors are logged.
+
+## Responsive startup
+
+The source scan shows the current path, file count, accumulated size and waiting time. It stops after 30 seconds without progress. Source read errors stop the operation before copying a partial file list. Directory junctions/reparse points encountered during traversal are reported rather than followed.
+
+The destination free-space query waits up to 5 seconds. If it fails or times out, the program warns and continues without a free-space estimate. A requested pause is excluded from these waiting limits. Background queries do not write destination files; cancelling their wait cannot forcibly interrupt a blocked operating-system query.
+
+The space warning compares available space against the entire source size, so it may overestimate incremental-copy requirements.
+
+## Configuration
+
+The script reads `config.json` next to itself, regardless of the current working directory. If absent, built-in defaults apply. **Replace the earlier Portuguese-key configuration with the supplied English-key file.** Unknown or old keys produce an error before copying; they are not silently ignored.
+
+```json
+{
+  "max_attempts": 5,
+  "retry_delay_seconds": 10,
+  "additional_extensions": [],
+  "additional_names": []
+}
 ```
 
-### Transfer block size
+| Key | Meaning |
+|---|---|
+| `max_attempts` | Total attempts per file, including the first; integer 1–1000. Default: 5. |
+| `retry_delay_seconds` | Delay between attempts; integer 0–3600. Default: 10. |
+| `additional_extensions` | Extra excluded suffixes, such as `.bak`. |
+| `additional_names` | Extra exact file/directory names, such as `Cache`, at any depth. |
 
-```python
-BLOCO_COPIA = 8 * 1024 * 1024
-```
+Exclusions are case-insensitive and additive. Built-in exclusions, including `.DS_Store`, all `._` names and common temporary/system files, remain enabled. Use simple suffixes/names, not paths or wildcard expressions. For `archive.tar.gz`, the suffix is `.gz`.
 
-The default transfer block is 8 MB.
+JSON does not allow comments or trailing commas. Duplicate/unknown keys and invalid values stop startup. Restart the program after editing the file. Effective settings are recorded in the log.
 
----
+## Statistics and performance
 
-## ⚠️ Fast Mode vs Secure Mode
+The terminal normally redraws up to five times per second. Errors, final results and manual resume trigger immediate updates. Existing-file decisions use one destination metadata lookup instead of a separate existence check followed by another lookup. The copy block remains 8 MiB.
 
-| Feature | Fast | Secure |
-|---|:---:|:---:|
-| Incremental copy | ✅ | ✅ |
-| Size verification | ✅ | ✅ |
-| Modification date | ✅ | ✅ |
-| SHA-256 | ❌ | ✅ |
-| Integrity verification | Basic | Strong |
-| Performance | 🚀 Faster | 🔐 Slower |
-| Recommended for | Normal backups | Critical data |
+Transfer speed uses transferred bytes and active copy time, including source hashing and flush. It excludes skipped bytes, pause time, retry waits and temporary-file verification. Retry traffic is counted in transferred bytes; successfully copied bytes count completed files once. System and NAS caches affect measured speed.
 
-Fast mode intentionally trades content hashing for performance.
+ETA estimates copying only, excluding future retries and verification. Pending bytes are adjusted as up-to-date files are skipped. Overall progress means processing, not successful copying: check the failure count.
 
-Secure mode should be preferred when verifying the exact content of transferred files is important.
+## Logs and error reports
 
----
+The current working directory receives a `logs` folder containing timestamped logs and `backup_..._report.txt` summaries.
 
-## 🔐 Data Safety
+Final results are **COMPLETED**, **COMPLETED WITH FAILURES**, **DRY RUN COMPLETED**, **CANCELLED**, or **STOPPED WITH ERROR**.
 
-COPY_OS is designed with a **non-destructive destination policy**.
+Reports list affected paths, stages, reasons, attempts and operating-system error codes when available. Categories include access denied, disk full, file in use, source changes, integrity failures and network errors/timeouts. Unrecognized errors retain their original description. Recovered attempts appear in the detailed log and attempt count, without marking a successful file as a permanent failure.
 
-The application:
+If report writing fails, the summary is printed in the terminal. Filenames, user-entered paths and operating-system exception messages are preserved verbatim; their language depends on the user and operating system.
 
-- Does not delete destination files
-- Does not automatically mirror deletions
-- Does not remove files that exist only on the destination
-- Uses temporary files during transfers
-- Verifies the copied data in secure mode before replacement
+## Validation checklist
 
-This makes COPY_OS suitable for backup-oriented workflows rather than destructive synchronization.
+1. Run Dry Run on a small sample; confirm no destination files are created.
+2. Test additional exclusions using a `.bak` file and a `Cache` folder.
+3. Pause/resume and cancel during source scanning.
+4. Copy a large test file in fast mode; pause/resume, then verify its contents.
+5. Repeat in secure mode and exercise the controls during verification.
+6. Cancel an update before replacement; confirm that the old destination survives.
+7. Review the log and final report, including any failures.
+8. Compare throughput on your actual Windows/NAS setup.
 
----
+Local automated tests cover both modes, configuration, retries, corruption rejection, source changes, pause/cancellation, blocked scans and final reports. The user confirmed successful execution on macOS. Windows keyboard input was simulated; real Windows/NAS validation remains pending. Local block-size measurements are not proof of a network speed improvement.
 
-## 📌 Project Status
+## Release 1.8
 
-**Current version: 1.7.0**
+- English interface, source code, configuration and documentation.
+- Pause/resume and cancellation during supported operations.
+- Live source scanning with timeout and bounded free-space queries.
+- Configurable exclusions and retry limits in `config.json`.
+- Detailed final reports with failure categories and affected paths.
+- Throttled terminal redraws and fewer destination metadata queries.
 
-Speed uses transferred bytes and active copy time (including source hashing and flush), excluding skipped files, retry waits and temporary-file verification. Transferred bytes include retry traffic; successfully copied bytes count completed files once. System/NAS caching can still affect the measurement. ETA estimates pending copy time only, excluding future retries and SHA-256 verification. The overall bar measures processing, not success; check the failure count.
+`copy_OS_1.8.py` is the current entry point. Earlier scripts remain available for historical use.
 
-The final summary and log separate scanned, copied, skipped, simulated and failed bytes, failed attempts, verified files, copy time and temporary-file verification time. Free-space checking compares free space against the entire scanned source size and may warn even for incremental backups.
+## Roadmap
 
-COPY_OS is actively developed.
+### Implemented
 
-Future releases may introduce additional improvements to performance, verification, reporting and synchronization capabilities.
+- [x] Dry Run processed-byte correction (1.6).
+- [x] Expanded transfer statistics (1.7).
+- [x] Pause/resume and cancellation (1.8).
+- [x] Responsive scanning and bounded free-space queries (1.8).
+- [x] Configuration for exclusions and retry settings (1.8).
+- [x] Detailed error reports (1.8).
+- [x] Terminal redraw and metadata-query optimizations (1.8).
+- [x] English translation (1.8).
 
----
+### Next steps
 
-## Release 1.7
+- [ ] Validate controls and startup on real Windows/NAS setups in both modes.
+- [ ] Measure and improve NAS/network performance further.
+- [ ] Improve recovery of interrupted transfers.
+- [ ] Expand verification options.
+- [ ] Graphical interface.
 
-- Expanded transfer statistics and per-file Dry Run updates.
-- Refreshed source size on every attempt in both modes.
-- At most five attempts per file, with explicit failure reporting.
-- Secure mode retains source-change detection, `fsync()`, SHA-256 comparison and replacement only after successful verification.
-- Restored large block-letter title with aligned frame.
-
-## 🗺️ Roadmap
-
-### Completed
-
-- [x] Corrected Dry Run processed-byte calculation (1.6)
-- [x] Additional transfer statistics (1.7)
-
-### Next priority: transfer controls and responsive startup
-
-Local prototypes 1.7.1–1.7.3 are under testing. These items are not yet part of the published 1.7 release and remain unchecked until Windows/NAS validation and release.
-
-- [ ] Pause/resume with **P** and cancel with **C** directly from the terminal interface.
-- [ ] Support controls during copying, SHA-256 verification and retry waits, preserving completed files and attempting to remove the current temporary file on cancellation.
-- [ ] Show live source-scan progress: current path, file count and accumulated size.
-- [ ] Allow pause/cancel during source analysis; stop the operation if the scan makes no progress for 30 seconds, logging the path without starting a partial backup.
-- [ ] Limit the destination free-space query to 5 seconds; warn and continue without a space estimate if it fails or times out.
-- [ ] Avoid a duplicate destination metadata scan before copying; adjust the copy estimate as up-to-date files are skipped.
-- [ ] Validate these changes on Windows and NAS in both fast and secure modes before publishing.
-
-Copy and hash controls are cooperative: a blocked disk/network read or write must return before the command can be handled. The local source-scan and free-space-query prototypes keep the interface responsive while those queries are pending.
-
-### Following improvements
-
-- [ ] Configuration file for exclusions and retry settings (no saved backup profiles).
-- [ ] More detailed error reporting.
-- [ ] Additional NAS/network optimizations.
-- [ ] Improved recovery of interrupted transfers.
-- [ ] Expanded verification options.
-- [ ] GUI interface.
-
----
-
-## 📄 License
-
-Licensed under the [MIT License](LICENSE).
-
-Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>.
-
-The copyright and permission notices must be preserved in all copies or substantial portions of the software.
-
----
-
-## 👤 Author
-
-**@moosmassacre** — mooshmassacre@mail.com
-
-COPY_OS — Secure File Transfer System
-
-Built with Python.
+See [PERFORMANCE.md](PERFORMANCE.md) for local measurements and their limits.

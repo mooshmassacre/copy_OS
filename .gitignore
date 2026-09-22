@@ -1,37 +1,18 @@
-# Logs do backup
+# Backup logs
 logs/
 
-# Arquivos temporários do copy_OS
+# Temporary transfer files
 *.copying
 
 # Python
 __pycache__/
 *.py[cod]
 
-# Ambientes virtuais
+# Virtual environments
 venv/
 .venv/
 
-# IDE
-.vscode/
-.idea/
-
-# macOS
-.DS_Store# Logs do backup
-logs/
-
-# Arquivos temporários do copy_OS
-*.copying
-
-# Python
-__pycache__/
-*.py[cod]
-
-# Ambientes virtuais
-venv/
-.venv/
-
-# IDE
+# Editors
 .vscode/
 .idea/
 

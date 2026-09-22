@@ -1,5 +1,7 @@
 # COPY_OS 1.8
 
+![COPY_OS 1.8 — ASCII logo with CRT-style panels and transfer controls](assets/copy-os-banner-16x9.png)
+
 A Python file-copy and NAS backup utility with fast and SHA-256-verified copy modes. Version 1.8 is the current release.
 
 Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. Licensed under the MIT License; see LICENSE.

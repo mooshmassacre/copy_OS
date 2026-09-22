@@ -6,18 +6,18 @@ Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. Licensed under the MI
 
 ## Requirements and startup
 
-Python 3.9 or later. No additional packages are required. Use a terminal with ANSI support. Keep `copy_OS_1.8.py` and `config.json` in the same directory.
+Python 3.9 or later. No additional packages are required. Use a terminal with ANSI support. Keep `copy_OS.py` and `config.json` in the same directory.
 
 Windows:
 
 ```powershell
-python copy_OS_1.8.py
+python copy_OS.py
 ```
 
 macOS / Linux:
 
 ```sh
-python3 copy_OS_1.8.py
+python3 copy_OS.py
 ```
 
 Enter the source folder, destination folder, execution mode and copy mode when prompted. The insufficient-space confirmation uses **Y** for yes. Backup profiles are not used.
@@ -114,7 +114,7 @@ Local automated tests cover both modes, configuration, retries, corruption rejec
 - Detailed final reports with failure categories and affected paths.
 - Throttled terminal redraws and fewer destination metadata queries.
 
-`copy_OS_1.8.py` is the current entry point. Earlier scripts remain available for historical use.
+`copy_OS.py` is the current entry point. Earlier versions remain available through Git history and version tags.
 
 ## Roadmap
 

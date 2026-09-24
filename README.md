@@ -10,7 +10,17 @@ Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. Licensed under the MI
 
 Python 3.9 or later. No additional packages are required. Use a terminal with ANSI support. Keep `copy_OS.py` and `config.json` in the same directory.
 
-Windows:
+### Windows — double-click launcher
+
+1. Install Python 3.9+ with its launcher or PATH option.
+2. [Download the current project ZIP](https://github.com/mooshmassacre/copy_OS/archive/refs/heads/main.zip) and extract it.
+3. Double-click **start_copy_OS.bat** in the extracted folder.
+
+Keep the BAT file, `copy_OS.py` and `config.json` together. The launcher detects Python and runs from the project folder, where logs and reports will be saved. The original v1.8.0 release ZIP does not include this launcher.
+
+See the [Windows user guide](docs/WINDOWS_GUIDE.md) for setup, controls and troubleshooting.
+
+Optional terminal command:
 
 ```powershell
 python copy_OS.py

@@ -26,7 +26,17 @@ Optional terminal command:
 python copy_OS.py
 ```
 
-macOS / Linux:
+### macOS — double-click launcher
+
+1. Install Python 3.9+ if needed.
+2. [Download the current project ZIP](https://github.com/mooshmassacre/copy_OS/archive/refs/heads/main.zip) and extract it.
+3. Double-click **start_copy_OS.command** to open COPY_OS in Terminal.
+
+Keep the launcher, `copy_OS.py` and `config.json` together. Logs and reports are saved beside the script. The original v1.8.0 release ZIP does not include the launcher.
+
+See the [macOS user guide](docs/MACOS_GUIDE.md) for setup and troubleshooting.
+
+Optional terminal command on macOS / Linux:
 
 ```sh
 python3 copy_OS.py

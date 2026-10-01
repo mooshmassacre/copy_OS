@@ -12,9 +12,11 @@ The launcher searches PATH and common Homebrew and python.org installation locat
 
 Mount your NAS share in Finder before starting. Mounted shares are usually under `/Volumes`. Logs and reports are written into the `logs` directory beside the script.
 
+You can drag folders from Finder into the source/destination prompts: escaped spaces and quoted paths are accepted. Plain paths containing spaces also work.
+
 ## Controls
 
-Follow the shortcuts displayed by your installed script and the [keyboard controls section](../README.md#keyboard-controls). The launcher does not change the script's shortcuts. Press Enter at the final prompt to finish.
+Press **Spacebar** to pause/resume or **Esc** to cancel. P and C are inactive; Ctrl+C is ignored during the backup operation. See the [keyboard controls section](../README.md#keyboard-controls). Press Enter at the final prompt to finish.
 
 ## Troubleshooting
 
@@ -36,3 +38,4 @@ The launcher was tested locally with Dry Run, paths containing spaces, missing-s
 The original v1.8.0 release archive predates this launcher; use the current project ZIP linked above.
 
 Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. MIT License.
+

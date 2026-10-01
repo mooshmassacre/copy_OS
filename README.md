@@ -6,6 +6,12 @@ A Python file-copy and NAS backup utility with fast and SHA-256-verified copy mo
 
 Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. Licensed under the MIT License; see LICENSE.
 
+## Download — Windows and macOS
+
+[Download the unified package](https://github.com/mooshmassacre/copy_OS/archive/refs/heads/main.zip). Extract the ZIP, then open **start_copy_OS.bat** on Windows or **start_copy_OS.command** on macOS. Both launch the same `copy_OS.py` and require Python 3.9+.
+
+The original v1.8.0 tag is preserved and predates these fixes. Use the current package above for Spacebar/Esc controls and macOS dragged-folder support.
+
 ## Requirements and startup
 
 Python 3.9 or later. No additional packages are required. Use a terminal with ANSI support. Keep `copy_OS.py` and `config.json` in the same directory.
@@ -58,7 +64,7 @@ Existing destination files are replaced only after successful checks. Destinatio
 
 ## Keyboard controls
 
-With the terminal focused, press **P** to pause/resume or **C** to cancel, without Enter. Ctrl+C also cancels.
+With the terminal focused, press **Spacebar** to pause/resume or **Esc** to cancel, without Enter. P and C are inactive; Ctrl+C is ignored during the backup operation.
 
 Controls are available during scanning, space checks, copying, temporary-file verification and retry waits. During copying or hashing, a blocked operating-system read/write must return before the command can be handled. Pausing does not freeze other applications: source changes remain subject to validation.
 
@@ -127,6 +133,13 @@ If report writing fails, the summary is printed in the terminal. Filenames, user
 
 Local automated tests cover both modes, configuration, retries, corruption rejection, source changes, pause/cancellation, blocked scans and final reports. The user confirmed successful execution on macOS. Windows keyboard input was simulated; real Windows/NAS validation remains pending. Local block-size measurements are not proof of a network speed improvement.
 
+## Updates to 1.8
+
+- Unified Windows/macOS package with both double-click launchers.
+- Spacebar pauses/resumes; Esc cancels.
+- macOS accepts shell-escaped and quoted folder paths from Finder drag-and-drop; Windows drive and UNC paths are preserved.
+- Users confirmed both launchers and the new controls work, and confirmed the macOS path fix. Automated Windows path tests passed; real Windows testing of the latest path fix remains pending.
+
 ## Release 1.8
 
 - English interface, source code, configuration and documentation.
@@ -160,3 +173,4 @@ Local automated tests cover both modes, configuration, retries, corruption rejec
 - [ ] Graphical interface.
 
 See [PERFORMANCE.md](PERFORMANCE.md) for local measurements and their limits.
+

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>
 
-# COPY_OS 1.8 — local test build.
+# COPY_OS 1.8 — Windows/macOS unified build.
 # Fast/secure copying, keyboard controls, responsive scanning, configuration,
 # transfer statistics and detailed error reports.
 import os
@@ -12,6 +12,8 @@ import hashlib
 from dataclasses import dataclass, field
 from functools import partial
 import select
+import signal
+import shlex
 import threading
 import queue
 import json
@@ -93,8 +95,11 @@ class CopyControl:
         self.redraw = None
         self._original_terminal = None
         self._extended_key = False
+        self._original_sigint = None
 
     def __enter__(self):
+        # Esc is the only cancellation shortcut during a backup.
+        self._original_sigint = signal.signal(signal.SIGINT, signal.SIG_IGN)
         return self
 
     def begin(self):
@@ -109,7 +114,12 @@ class CopyControl:
         self.active = True
 
     def __exit__(self, *args):
-        self.suspend()
+        try:
+            self.suspend()
+        finally:
+            if self._original_sigint is not None:
+                signal.signal(signal.SIGINT, self._original_sigint)
+                self._original_sigint = None
 
     def suspend(self):
         if self._original_terminal is not None:
@@ -133,7 +143,20 @@ class CopyControl:
                     return None
                 return key.lower()
         elif select.select([sys.stdin], [], [], 0)[0]:
-            return os.read(sys.stdin.fileno(), 1).decode("ascii", errors="ignore").lower()
+            key = os.read(sys.stdin.fileno(), 1)
+            if key == b"\x1b" and select.select([sys.stdin], [], [], 0.05)[0]:
+                prefix = os.read(sys.stdin.fileno(), 1)
+                if prefix in (b"[", b"O"):
+                    # Arrow/function keys start with Esc on POSIX terminals.
+                    # Consume their control sequence without cancelling.
+                    for _ in range(32):
+                        if not select.select([sys.stdin], [], [], 0.05)[0]:
+                            break
+                        part = os.read(sys.stdin.fileno(), 1)
+                        if not part or 0x40 <= part[0] <= 0x7e:
+                            break
+                    return None
+            return key.decode("ascii", errors="ignore").lower()
         return None
 
     def checkpoint(self):
@@ -142,13 +165,13 @@ class CopyControl:
         try:
             while True:
                 key = self.read_key()
-                if key in ("c", "\x03"):
+                if key == "\x1b":
                     raise CopyCancelled()
-                if key == "p":
+                if key == " ":
                     self.paused = not self.paused
                     if self.paused:
                         pause_start = time.perf_counter()
-                        print("\nPAUSED — [P] Resume | [C] Cancel", flush=True)
+                        print("\nPAUSED — [SPACEBAR] Resume | [ESC] Cancel", flush=True)
                     elif self.redraw:
                         self.redraw()
                 if not self.paused:
@@ -235,6 +258,27 @@ def write_log(log_file: Path, message: str):
 
 def clear_line():
     print("\033[2K", end="")
+
+
+def normalize_input_path(value: str) -> str:
+    """Accept plain paths and a single shell-quoted/escaped POSIX path.
+
+    Never execute shell input. Preserve Windows backslashes and UNC paths.
+    Unquoted paths containing spaces remain valid as entered.
+    """
+    value = value.strip()
+    if sys.platform == "win32":
+        if len(value) >= 2 and value[0] == value[-1] == '"':
+            return value[1:-1]
+        return value
+    if "\\" in value or value.startswith(("'", '"')):
+        try:
+            parts = shlex.split(value, posix=True)
+        except ValueError:
+            return value
+        if len(parts) == 1:
+            return parts[0]
+    return value
 
 
 def safe_path(path: Path) -> Path:
@@ -543,7 +587,7 @@ def update_interface(
     print(ASCII_ART)
     print()
 
-    lines.append("[P] Pause / Resume | [C] Cancel | Ctrl+C Cancel")
+    lines.append("[SPACEBAR] Pause / Resume | [ESC] Cancel")
     for line in lines:
         print(line)
     sys.stdout.flush()
@@ -625,7 +669,7 @@ def collect_files(source: Path, log_file: Path, control=None, timeout=30.0):
         delay = max(0, time.monotonic() - current['activity'])
         print("\033[2J\033[H", end="")
         print(ASCII_ART)
-        print("SCANNING SOURCE — [P] Pause/Resume | [C] Cancel")
+        print("SCANNING SOURCE — [SPACEBAR] Pause/Resume | [ESC] Cancel")
         print(f"Files: {current['count']} | Total: {format_bytes(current['bytes'])}")
         print(f"Path: {current['path']}")
         print(f"Waiting for a response for {delay:.1f}s (response timeout: {timeout:g}s)", flush=True)
@@ -942,7 +986,7 @@ def _copy_folders(source, destination, dry_run, secure_mode, control):
     if not dry_run:
         e.current_stage = "Free-space query"
         e.current_path = str(destination)
-        print("Checking destination free space (timeout: 5s)... [P] Pause | [C] Cancel", flush=True)
+        print("Checking destination free space (timeout: 5s)... [SPACEBAR] Pause | [ESC] Cancel", flush=True)
         try:
             available = free_space(destination, control=control)
         except KeyboardInterrupt:
@@ -1151,8 +1195,8 @@ if __name__ == "__main__":
     print(f"Configuration: {config_used if config_used else 'built-in defaults (no config.json)'}")
     print(f"Attempts per file: {MAX_ATTEMPTS} | Interval: {RETRY_DELAY}s")
 
-    source = input("\nEnter the SOURCE FOLDER path:\n> ").strip().strip('"')
-    destination = input("\nEnter the DESTINATION FOLDER path:\n> ").strip().strip('"')
+    source = normalize_input_path(input("\nEnter the SOURCE FOLDER path:\n> "))
+    destination = normalize_input_path(input("\nEnter the DESTINATION FOLDER path:\n> "))
 
     print("\nExecution mode:")
     print("  [1] Normal backup")

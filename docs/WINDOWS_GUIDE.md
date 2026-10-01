@@ -28,9 +28,9 @@ Open the NAS share in File Explorer first and confirm that you can access it usi
 
 Keep the terminal focused:
 
-- **P:** pause or resume.
-- **C:** cancel.
-- **Ctrl+C:** also cancels.
+- **Spacebar:** pause or resume.
+- **Esc:** cancel.
+P and C are inactive. Ctrl+C is ignored during the backup operation.
 
 These controls do not require Enter. During copying or hashing, a blocked operating-system read/write must return before input can be handled. Cancellation preserves completed copies and attempts to remove the active temporary file. Use the cancellation controls rather than closing the terminal window.
 
@@ -55,6 +55,7 @@ When started with the BAT file, logs and reports are written into the project's 
 | COPY_OS exited with code ... | Read the error shown above the message before closing the window. |
 | Broken logo or escape characters | Use an ANSI-capable terminal with a Unicode monospace font, such as Windows Terminal. |
 
-The BAT file has been reviewed for interpreter detection, paths and Windows line endings. It has not yet been executed on a real Windows system. Windows/NAS validation remains pending.
+The BAT file has been reviewed for interpreter detection, paths and Windows line endings. The user confirmed the Windows launcher works. Windows path handling is covered by automated tests; real Windows validation of the latest shared path fix remains pending.
 
 Copyright (c) 2026 @moosmassacre <mooshmassacre@mail.com>. MIT License.
+

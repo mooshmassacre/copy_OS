@@ -64,9 +64,7 @@ Existing destination files are replaced only after successful checks. Destinatio
 
 ## Keyboard controls
 
-With the terminal focused, press **Spacebar** to pause/resume or **Esc** to cancel, without Enter. P and C are inactive; Ctrl+C is ignored during the backup operation.
-
-Controls are available during scanning, space checks, copying, temporary-file verification and retry waits. During copying or hashing, a blocked operating-system read/write must return before the command can be handled. Pausing does not freeze other applications: source changes remain subject to validation.
+With the terminal focused, press **Spacebar** to pause/resume or **Esc** to cancel, without Enter. Controls are available during scanning, space checks, copying, temporary-file verification and retry waits. During copying or hashing, a blocked operating-system read/write must return before the command can be handled. Pausing does not freeze other applications: source changes remain subject to validation.
 
 Cancellation preserves completed files and attempts to remove the current temporary file. Cleanup errors are logged.
 

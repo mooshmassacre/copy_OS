@@ -16,7 +16,7 @@ You can drag folders from Finder into the source/destination prompts: escaped sp
 
 ## Controls
 
-Press **Spacebar** to pause/resume or **Esc** to cancel. P and C are inactive; Ctrl+C is ignored during the backup operation. See the [keyboard controls section](../README.md#keyboard-controls). Press Enter at the final prompt to finish.
+Press **Spacebar** to pause/resume or **Esc** to cancel. See the [keyboard controls section](../README.md#keyboard-controls). Press Enter at the final prompt to finish.
 
 ## Troubleshooting
 

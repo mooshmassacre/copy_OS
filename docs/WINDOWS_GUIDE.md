@@ -30,8 +30,6 @@ Keep the terminal focused:
 
 - **Spacebar:** pause or resume.
 - **Esc:** cancel.
-P and C are inactive. Ctrl+C is ignored during the backup operation.
-
 These controls do not require Enter. During copying or hashing, a blocked operating-system read/write must return before input can be handled. Cancellation preserves completed copies and attempts to remove the active temporary file. Use the cancellation controls rather than closing the terminal window.
 
 At completion, review the summary and press Enter to exit.
